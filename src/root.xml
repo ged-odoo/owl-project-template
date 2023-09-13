@@ -1,5 +1,5 @@
 <templates>
   <t t-name="Root">
-    hello owl
+    <div>hello owl</div>
   </t>
 </templates>

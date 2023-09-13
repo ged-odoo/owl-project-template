@@ -1,10 +1,10 @@
 {
   "name": "owl-project-template",
-  "module": "index.js",
+  "module": "main.js",
   "type": "module",
   "scripts": {
-    "start": "bun run index.js",
-    "dev": "bun run index.js --dev"
+    "start": "bun run main.js",
+    "dev": "bun run main.js --dev"
   },
   "devDependencies": {
     "bun-types": "latest"
