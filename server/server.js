@@ -52,13 +52,16 @@ export class Server {
   handleError() {
     return new Response(null, { status: 404 });
   }
-  handleRequest(req, server) {
+  async handleRequest(req, server) {
     const pathName = new URL(req.url).pathname;
-    console.log(`[GET] ${pathName}`);
+    let response;
     if (pathName in this.handlers) {
-      return this.handlers[pathName](req, server);
+      response =  await this.handlers[pathName](req, server);
+    } else {
+      response = new Response(Bun.file(join(this.root, pathName)));
     }
-    return new Response(Bun.file(join(this.root, pathName)));
+    console.log(`${new Date().toLocaleTimeString()} GET ${pathName}`);
+    return response;
   }
   serve() {
     Bun.serve(this.config);
