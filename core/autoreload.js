@@ -51,5 +51,8 @@ export const autoreloadCode = port => `
     if (ev.data === "reload") { location.reload(); }
     if (ev.data === "reload_css") { reloadCSS(); }
   });
+  socket.addEventListener("close", () => {
+    console.warn("websocket connection lost. Make sure server is running, and refresh this page");
+  });
 })();
 </script>`;
