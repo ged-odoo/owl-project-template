@@ -30,12 +30,20 @@ export class Server {
       const bundle = await Bun.build({
         entrypoints: [join(this.root, "app.js")],
         external: ["@odoo/owl"],
+        minify: !this.dev
       });
       return new Response(bundle.outputs[0]);
     },
-    "/owl.js": () => {
+    "/owl.js": async () => {
       const path = join(cwd(), "node_modules/@odoo/owl/dist/owl.es.js");
-      return new Response(Bun.file(path), {
+      let file;
+      if (this.dev) {
+        file = Bun.file(path);
+      } else {
+        file = (await Bun.build({ entrypoints: [path], minify: true }))
+          .outputs[0];
+      }
+      return new Response(file, {
         headers: {
           "Cache-Control": "public, max-age=31536000, immutable",
         },

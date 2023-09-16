@@ -4,6 +4,7 @@ A starter template to create [owl](https://github.com/odoo/owl) projects using b
 production ready!
 
 ## Setup
+
 To create a new project:
 
 ```bash
@@ -13,12 +14,14 @@ bun dev # to start a dev server
 ```
 
 The following scripts are available:
-- `bun start` to start a server
-- `bun dev` to start a dev server (with autoreload and file watcher)
+
+- `bun start` to start a server in production mode
+- `bun dev` to start a dev server (with dev mode, autoreload and file watcher)
 
 ## Features
 
 This project template provides the following features:
+
 - starting point for an owl application
 - all templates are collected from `src` and injected into the page
 - autoreload (in dev mode)
@@ -32,12 +35,13 @@ This project template provides the following features:
   - a basic http server
 - `public/` is the location for the owl application code (the browser code). Note that all xml files will be  
   injected intothe main page (look at page source)
-    - `public/app.html` is the main page that will serve as index page.
-    - `public/app.js` is the main entry point for the owl application
+  - `public/app.html` is the main page that will serve as index page.
+  - `public/app.js` is the main entry point for the owl application
 
 ## Server
 
 The server located in `core` has the following routes:
+
 - for route `/`, it reads `public/app.html` and inject templates, and autoreload code (in dev mode)
 - for route `/app.js`, it bundles all code in `public/` using `app.js` as the entry point
 - for route `/owl.js`, it returns the owl file from `node_modules`
