@@ -1,6 +1,6 @@
 # owl-project-template
 
-A starter template to create owl projects using bun. This is only a toy (<200 loc), not
+A starter template to create [owl](https://github.com/odoo/owl) projects using bun. This is only a toy (<200 loc), not
 production ready!
 
 ## Setup

@@ -1,5 +1,6 @@
 {
   "name": "owl-project-template",
+  "version": "0.1.0",
   "module": "main.js",
   "type": "module",
   "scripts": {
