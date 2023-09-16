@@ -1,4 +1,4 @@
-# owl-project-template
+# 🦉 owl-project-template 🦉
 
 A starter template to create [owl](https://github.com/odoo/owl) projects using bun. This is only a toy (<200 loc), not
 production ready!
@@ -26,12 +26,19 @@ This project template provides the following features:
 ## Project structure
 
 - `main.js` is the main entry point. It checks for dev mode, and start the server accordingly
-- `server/` is a very simple (mostly static) server that perform the following tasks:
-    - for route `/`, it reads `src/app.html` and inject templates, and autoreload code (in dev mode)
-    - for route `/app.js`, it bundles all code in `src/` using `app.js` as the entry point
-    - for route `/owl.js`, it returns the owl file from `node_modules`
-    - other files are statically served from `/src`
-- `src/` is the location for the owl application code. Note that all xml files will be injected into
-    the main page (look at page source)
-    - `src/app.html` is the main page that will serve as index page.
-    - `src/app.js` is the main entry point for the owl application
+- `core/` is meant to contain the code that organize the application (so, a framework). This means:
+  - managing assets
+  - a simple autoreload feature
+  - a basic http server
+- `public/` is the location for the owl application code (the browser code). Note that all xml files will be  
+  injected intothe main page (look at page source)
+    - `public/app.html` is the main page that will serve as index page.
+    - `public/app.js` is the main entry point for the owl application
+
+## Server
+
+The server located in `core` has the following routes:
+- for route `/`, it reads `public/app.html` and inject templates, and autoreload code (in dev mode)
+- for route `/app.js`, it bundles all code in `public/` using `app.js` as the entry point
+- for route `/owl.js`, it returns the owl file from `node_modules`
+- other files are statically served from `/public`
