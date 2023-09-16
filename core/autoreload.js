@@ -1,4 +1,5 @@
 import { watch } from "fs";
+import chokidar from "chokidar";
 
 export function handleAutoReload(req, server) {
   if (server.upgrade(req)) {
@@ -21,12 +22,15 @@ export const autoReloadWebSocket = {
 const sockets = new Set();
 
 export function watchFiles(path) {
-  watch(path, { recursive: true }, (event, filename) => {
-    console.log(`Detected ${event} in ${filename}`);
-    const msg = filename.endsWith(".css") ? "reload_css" : "reload";
-    for (let socket of sockets) {
-      socket.send(msg)
-    }
+  const watcher = chokidar.watch(path);
+  watcher.on("ready", () => {
+    watcher.on('all', (event, path) => {
+      console.log(`Detected ${event} in ${path}`);
+      const msg = path.endsWith(".css") ? "reload_css" : "reload";
+      for (let socket of sockets) {
+        socket.send(msg)
+      }
+    });
   });
 }
 
