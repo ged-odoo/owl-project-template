@@ -59,6 +59,11 @@ function* getFile(path) {
   }
 }
 
+/**
+ * Aggregate all templates from xml files in public path
+ *
+ * @returns Promise<string>
+ */
 async function fetchTemplates() {
   const regex = /<templates>([\s\S]*?)<\/templates>/;
   const proms = [];

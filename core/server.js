@@ -8,7 +8,10 @@ import {
 import { buildIndex, buildOwl, bundleApp } from "./assets";
 
 export class Server {
-  handlers = {};
+  handlers = {
+    GET: {},
+    POST: {},
+  };
 
   constructor(params) {
     this.dev = params.dev;
@@ -23,27 +26,45 @@ export class Server {
       this.dev ? app_config.public_path : app_config.build_path
     );
     if (this.dev) {
-      this.handlers["/autoreload"] = handleAutoReload;
       this.config.websocket = autoReloadWebSocket;
-      this.handlers["/index.html"] = async () => {
-        const html = await buildIndex(this.dev);
-        return new Response(html, {
-          headers: { "Content-Type": "text/html" },
+      this.get("/autoreload", handleAutoReload)
+        .get("/index.html", async () => {
+          const html = await buildIndex(this.dev);
+          return new Response(html, {
+            headers: { "Content-Type": "text/html" },
+          });
+        })
+        .get("/app.js", async () => {
+          const bundle = await bundleApp(this.dev);
+          return new Response(bundle.outputs[0]);
+        })
+        .get("/owl.js", async () => {
+          const owl = await buildOwl(this.dev);
+          return new Response(owl, {
+            headers: {
+              "Cache-Control": "public, max-age=31536000, immutable",
+            },
+          });
         });
-      };
-      this.handlers["/app.js"] = async () => {
-        const bundle = await bundleApp(this.dev);
-        return new Response(bundle.outputs[0]);
-      };
-      this.handlers["/owl.js"] = async () => {
-        const owl = await buildOwl(this.dev);
-        return new Response(owl, {
-          headers: {
-            "Cache-Control": "public, max-age=31536000, immutable",
-          },
-        });
-      };
     }
+  }
+  /**
+   * @param {string} route
+   * @param {Function} handler
+   * @returns Server
+   */
+  get(route, handler) {
+    this.handlers.GET[route] = handler;
+    return this;
+  }
+  /**
+   * @param {string} route
+   * @param {Function} handler
+   * @returns Server
+   */
+  post(route, handler) {
+    this.handlers.POST[route] = handler;
+    return this;
   }
   handleError() {
     return new Response(null, { status: 404 });
@@ -54,8 +75,8 @@ export class Server {
       pathName = "/index.html";
     }
     let response;
-    if (pathName in this.handlers) {
-      response = await this.handlers[pathName](req, server);
+    if (pathName in this.handlers[req.method]) {
+      response = await this.handlers[req.method][pathName](req, server);
     } else {
       response = new Response(Bun.file(join(this.root, pathName)));
     }
