@@ -3,6 +3,6 @@ import { mount } from "@odoo/owl";
 import { Root } from "./root";
 
 mount(Root, document.body, {
-  templates: document.querySelector('script[type="application/xml"]').text,
-  dev: true 
+  templates: TEMPLATES, // injected by server
+  dev: DEV, // injected by server 
 });

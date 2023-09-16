@@ -10,9 +10,12 @@ export class Server {
       const html = await file.text();
       const templates = await fetchTemplates(this.root);
       let toInject = `<script type="application/xml">${templates}</script>`;
-      if (this.autoreload) {
+      if (this.dev) {
         toInject += autoreloadCode(this.config.port);
       }
+      toInject += `<script>
+      TEMPLATES = document.querySelector('script[type="application/xml"]').text;
+      DEV = ${this.dev};</script>`;
       const finalHtml = html.replace(/<\/head>/, match => toInject + match);
       return new Response(finalHtml, {
         headers: { "Content-Type": "text/html" },
@@ -38,13 +41,13 @@ export class Server {
 
   constructor(params) {
     this.root = params.root;
-    this.autoreload = params.autoreload;
+    this.dev = params.dev;
     this.config = {
       port: params.port,
       fetch: this.handleRequest.bind(this),
       error: this.handleError.bind(this)
     }
-    if (this.autoreload) {
+    if (this.dev) {
       this.handlers["/autoreload"] = handleAutoReload;
       this.config.websocket = autoReloadWebSocket;
     }
@@ -65,7 +68,7 @@ export class Server {
   }
   serve() {
     Bun.serve(this.config);
-    if (this.autoreload) {
+    if (this.dev) {
       watchFiles(this.root);
     }
   }
