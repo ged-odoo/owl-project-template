@@ -9,7 +9,7 @@ export function handleAutoReload(req, server) {
 }
 
 export const autoReloadWebSocket = {
-  message(ws, message) { },
+  message(ws, message) {},
   open(ws) {
     sockets.add(ws);
   },
@@ -18,23 +18,22 @@ export const autoReloadWebSocket = {
   },
 };
 
-
 const sockets = new Set();
 
 export function watchFiles(path) {
   const watcher = chokidar.watch(path);
   watcher.on("ready", () => {
-    watcher.on('all', (event, path) => {
+    watcher.on("all", (event, path) => {
       console.log(`Detected ${event} in ${path}`);
       const msg = path.endsWith(".css") ? "reload_css" : "reload";
       for (let socket of sockets) {
-        socket.send(msg)
+        socket.send(msg);
       }
     });
   });
 }
 
-export const autoreloadCode = port => `
+export const autoreloadCode = (port) => `
 <script>
 (function autoreload() {
   function reloadCSS() {

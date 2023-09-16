@@ -4,5 +4,5 @@ import { Root } from "./root";
 
 mount(Root, document.body, {
   templates: TEMPLATES, // injected by server
-  dev: DEV, // injected by server 
+  dev: DEV, // injected by server
 });

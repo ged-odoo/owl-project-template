@@ -1,6 +1,11 @@
 import { join } from "path";
 import { cwd } from "process";
-import { autoReloadWebSocket, autoreloadCode, handleAutoReload, watchFiles } from "./autoreload";
+import {
+  autoReloadWebSocket,
+  autoreloadCode,
+  handleAutoReload,
+  watchFiles,
+} from "./autoreload";
 import { fetchTemplates } from "./templates";
 
 export class Server {
@@ -16,10 +21,10 @@ export class Server {
       toInject += `<script>
       TEMPLATES = document.querySelector('script[type="application/xml"]').text;
       DEV = ${this.dev};</script>`;
-      const finalHtml = html.replace(/<\/head>/, match => toInject + match);
+      const finalHtml = html.replace(/<\/head>/, (match) => toInject + match);
       return new Response(finalHtml, {
         headers: { "Content-Type": "text/html" },
-      });    
+      });
     },
     "/app.js": async () => {
       const bundle = await Bun.build({
@@ -27,16 +32,15 @@ export class Server {
         external: ["@odoo/owl"],
       });
       return new Response(bundle.outputs[0]);
-
     },
     "/owl.js": () => {
       const path = join(cwd(), "node_modules/@odoo/owl/dist/owl.es.js");
       return new Response(Bun.file(path), {
         headers: {
-          "Cache-Control": "public, max-age=31536000, immutable"
-        }
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
       });
-    }
+    },
   };
 
   constructor(params) {
@@ -45,8 +49,8 @@ export class Server {
     this.config = {
       port: params.port,
       fetch: this.handleRequest.bind(this),
-      error: this.handleError.bind(this)
-    }
+      error: this.handleError.bind(this),
+    };
     if (this.dev) {
       this.handlers["/autoreload"] = handleAutoReload;
       this.config.websocket = autoReloadWebSocket;
@@ -59,7 +63,7 @@ export class Server {
     const pathName = new URL(req.url).pathname;
     let response;
     if (pathName in this.handlers) {
-      response =  await this.handlers[pathName](req, server);
+      response = await this.handlers[pathName](req, server);
     } else {
       response = new Response(Bun.file(join(this.root, pathName)));
     }

@@ -1,6 +1,6 @@
 import { Server } from "./core/server";
 import { name } from "./package.json";
-import { argv} from "process";
+import { argv } from "process";
 import { join } from "path";
 
 const inDevMode = argv.includes("--dev");
