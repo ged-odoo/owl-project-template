@@ -1,74 +1,58 @@
 import { join } from "path";
-import { cwd } from "process";
+import { name, app_config } from "../package.json";
 import {
   autoReloadWebSocket,
-  autoreloadCode,
   handleAutoReload,
   watchFiles,
 } from "./autoreload";
-import { fetchTemplates } from "./templates";
+import { buildIndex, buildOwl, bundleApp } from "./assets";
 
 export class Server {
-  handlers = {
-    "/": async () => {
-      const file = Bun.file(join(this.root, "app.html"));
-      const html = await file.text();
-      const templates = await fetchTemplates(this.root);
-      let toInject = `<script type="application/xml">${templates}</script>`;
-      if (this.dev) {
-        toInject += autoreloadCode(this.config.port);
-      }
-      toInject += `<script>
-      TEMPLATES = document.querySelector('script[type="application/xml"]').text;
-      DEV = ${this.dev};</script>`;
-      const finalHtml = html.replace(/<\/head>/, (match) => toInject + match);
-      return new Response(finalHtml, {
-        headers: { "Content-Type": "text/html" },
-      });
-    },
-    "/app.js": async () => {
-      const bundle = await Bun.build({
-        entrypoints: [join(this.root, "app.js")],
-        external: ["@odoo/owl"],
-        minify: !this.dev
-      });
-      return new Response(bundle.outputs[0]);
-    },
-    "/owl.js": async () => {
-      const path = join(cwd(), "node_modules/@odoo/owl/dist/owl.es.js");
-      let file;
-      if (this.dev) {
-        file = Bun.file(path);
-      } else {
-        file = (await Bun.build({ entrypoints: [path], minify: true }))
-          .outputs[0];
-      }
-      return new Response(file, {
-        headers: {
-          "Cache-Control": "public, max-age=31536000, immutable",
-        },
-      });
-    },
-  };
+  handlers = {};
 
   constructor(params) {
-    this.root = params.root;
     this.dev = params.dev;
     this.config = {
-      port: params.port,
+      port: app_config.port,
       fetch: this.handleRequest.bind(this),
       error: this.handleError.bind(this),
     };
+    this.root = join(
+      "__dirname",
+      "../",
+      this.dev ? app_config.public_path : app_config.build_path
+    );
     if (this.dev) {
       this.handlers["/autoreload"] = handleAutoReload;
       this.config.websocket = autoReloadWebSocket;
+      this.handlers["/index.html"] = async () => {
+        const html = await buildIndex(this.dev);
+        return new Response(html, {
+          headers: { "Content-Type": "text/html" },
+        });
+      };
+      this.handlers["/app.js"] = async () => {
+        const bundle = await bundleApp(this.dev);
+        return new Response(bundle.outputs[0]);
+      };
+      this.handlers["/owl.js"] = async () => {
+        const owl = await buildOwl(this.dev);
+        return new Response(owl, {
+          headers: {
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      };
     }
   }
   handleError() {
     return new Response(null, { status: 404 });
   }
   async handleRequest(req, server) {
-    const pathName = new URL(req.url).pathname;
+    let pathName = new URL(req.url).pathname;
+    if (pathName === "/") {
+      pathName = "/index.html";
+    }
     let response;
     if (pathName in this.handlers) {
       response = await this.handlers[pathName](req, server);
@@ -83,5 +67,8 @@ export class Server {
     if (this.dev) {
       watchFiles(this.root);
     }
+    console.log(
+      `[${name}] server started. Listening on http://localhost:${app_config.port}`
+    );
   }
 }

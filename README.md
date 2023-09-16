@@ -15,8 +15,9 @@ bun dev # to start a dev server
 
 The following scripts are available:
 
-- `bun start` to start a server in production mode
-- `bun dev` to start a dev server (with dev mode, autoreload and file watcher)
+- `bun start`: build all static assets in `dist/` and start a server in production mode 
+- `bun dev` to start a dev server, loading all static assets in memory from `public/` (and with dev mode, autoreload and file watcher)
+- `bun run build` to build all static assets into `dist/` folder
 
 ## Features
 
@@ -45,4 +46,4 @@ The server located in `core` has the following routes:
 - for route `/`, it reads `public/app.html` and inject templates, and autoreload code (in dev mode)
 - for route `/app.js`, it bundles all code in `public/` using `app.js` as the entry point
 - for route `/owl.js`, it returns the owl file from `node_modules`
-- other files are statically served from `/public`
+- other files are statically served from `public/` (in dev mode) or `dist/` (in prod mode)

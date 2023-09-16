@@ -1,5 +1,5 @@
-import { watch } from "fs";
 import chokidar from "chokidar";
+import { app_config } from "../package.json";
 
 export function handleAutoReload(req, server) {
   if (server.upgrade(req)) {
@@ -33,7 +33,7 @@ export function watchFiles(path) {
   });
 }
 
-export const autoreloadCode = (port) => `
+export const autoreloadCode = `
 <script>
 (function autoreload() {
   function reloadCSS() {
@@ -45,7 +45,7 @@ export const autoreloadCode = (port) => `
       }
     }
   }  
-  const socket = new WebSocket("ws://localhost:${port}/autoreload");
+  const socket = new WebSocket("ws://localhost:${app_config.port}/autoreload");
   socket.addEventListener("message", ev => {
     if (ev.data === "reload") { location.reload(); }
     if (ev.data === "reload_css") { reloadCSS(); }
