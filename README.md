@@ -47,3 +47,20 @@ The server located in `core` has the following routes:
 - for route `/app.js`, it bundles all code in `public/` using `app.js` as the entry point
 - for route `/owl.js`, it returns the owl file from `node_modules`
 - other files are statically served from `public/` (in dev mode) or `dist/` (in prod mode)
+
+## Configuration
+
+Here is the list of supported keys in `app_config` key in package.json:
+
+- `port`: the port that the server will listen to
+- `public_path`: the (relative) folder containing all the static code for the application
+- `build_path`: the (relative) folder that will be used as target for the build process
+- `other_static_files`: a description of all additional static files available to the server.
+  For example:
+  ```json
+  {
+    "other_static_files": {
+      "milligram.css": "node_modules/milligram/dist/milligram.css"
+    }
+  }
+  ```

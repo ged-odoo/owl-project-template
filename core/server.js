@@ -25,6 +25,12 @@ export class Server {
       "../",
       this.dev ? app_config.public_path : app_config.build_path
     );
+    if (app_config.other_static_files) {
+      for (let file in app_config.other_static_files) {
+        const path = app_config.other_static_files[file]
+        this.get('/' + file, () => new Response(Bun.file(join(__dirname, '../', path))));
+      }
+    }
     if (this.dev) {
       this.config.websocket = autoReloadWebSocket;
       this.get("/autoreload", handleAutoReload)
