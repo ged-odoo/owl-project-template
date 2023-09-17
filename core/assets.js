@@ -15,17 +15,45 @@ export async function bundleApp(dev, outdir) {
   return bundle;
 }
 
+/**
+ * todo: change code to avoid sequential calls
+ *
+ * @param {boolean} dev mode
+ * @returns string
+ */
 export async function buildIndex(dev) {
   const file = Bun.file(join(PUBLIC_PATH, "app.html"));
   const html = await file.text();
-  const templates = await fetchTemplates();
-  let toInject = `<script type="application/xml">${templates}</script>`;
+  let toInject = `
+  <script>
+  FETCH_TEMPLATES = async () => {
+    let s = document.querySelector('script[type="application/xml"]');
+    return s ? s.text : await (await fetch('app.xml')).text();
+  };
+  DEV = ${dev};
+  </script>
+  `;
+  if (app_config.inline_css) {
+    const css = await fetchStyles();
+    toInject += `  
+    <style>
+      ${css}
+    </style>`;
+  } else {
+    toInject += `
+    <link rel="stylesheet" href="app.css"/>
+    `;
+  }
+  if (app_config.inline_xml) {
+    const xml = await fetchTemplates();
+    toInject += `
+    <script type="application/xml">
+    ${xml}
+    </script>`;
+  }
   if (dev) {
     toInject += autoreloadCode;
   }
-  toInject += `<script>
-  TEMPLATES = document.querySelector('script[type="application/xml"]').text;
-  DEV = ${dev};</script>`;
   return html.replace(/<\/head>/, (match) => toInject + match);
 }
 
@@ -64,7 +92,7 @@ function* getFile(path) {
  *
  * @returns Promise<string>
  */
-async function fetchTemplates() {
+export async function fetchTemplates() {
   const regex = /<templates>([\s\S]*?)<\/templates>/;
   const proms = [];
   for (let file of getFile(PUBLIC_PATH)) {
@@ -79,4 +107,20 @@ async function fetchTemplates() {
   }
   const templates = await Promise.all(proms);
   return `<templates>${templates.join("")}</templates>`;
+}
+
+/**
+ * Aggregate all css files in public path
+ *
+ * @returns Promise<string>
+ */
+export async function fetchStyles() {
+  const proms = [];
+  for (let file of getFile(PUBLIC_PATH)) {
+    if (file.type === "text/css") {
+      proms.push(file.text());
+    }
+  }
+  const css = await Promise.all(proms);
+  return css.join("\n");
 }

@@ -1,6 +1,6 @@
 # 🦉 owl-project-template 🦉
 
-A starter template to create [owl](https://github.com/odoo/owl) projects using bun. This is only a toy (<250 loc), not
+A starter template to create [owl](https://github.com/odoo/owl) projects using bun. This is only a toy (around 300 loc), not
 production ready!
 
 ## Setup
@@ -64,3 +64,7 @@ Here is the list of supported keys in `app_config` key in package.json:
     }
   }
   ```
+- `inline_css` (default: false): if true, all css files in `public_path` will be concatenated and
+  injected in html page. Otherwise, a `<link href="app.css"/>` will be injected instead, and the `/app.css`
+  route will return the content of all css files
+- `inline_xml` (default: false): same as the css, but for all xml files

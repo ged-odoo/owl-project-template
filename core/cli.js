@@ -1,5 +1,11 @@
 import { argv } from "process";
-import { buildIndex, buildOwl, bundleApp } from "./assets";
+import {
+  buildIndex,
+  buildOwl,
+  bundleApp,
+  fetchStyles,
+  fetchTemplates,
+} from "./assets";
 import { app_config } from "../package.json";
 import { join } from "path";
 import fs from "fs";
@@ -22,6 +28,15 @@ async function buildApp() {
   console.log(`App is ready in folder: ${BUILD_PATH}`);
   // owl
   await buildOwl(false, BUILD_PATH);
-  // todo: bundle all css files from app.html
+  // bundle all css files
+  if (!app_config.inline_css) {
+    const css = await fetchStyles();
+    await Bun.write(join(BUILD_PATH, "app.css"), css);
+  }
+  // bundle all xml files
+  if (!app_config.inline_xml) {
+    const xml = await fetchTemplates();
+    await Bun.write(join(BUILD_PATH, "app.xml"), xml);
+  }
   // todo: copy all remaining static files from public to build_path
 }

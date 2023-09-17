@@ -6,7 +6,10 @@
   "app_config": {
     "port": 3000,
     "public_path": "public",
-    "build_path": "dist"
+    "build_path": "dist",
+    "inline_css": false,
+    "inline_xml": false,
+    "other_static_files": {}
   },
   "scripts": {
     "prestart": "bun run build",

@@ -5,7 +5,13 @@ import {
   handleAutoReload,
   watchFiles,
 } from "./autoreload";
-import { buildIndex, buildOwl, bundleApp } from "./assets";
+import {
+  buildIndex,
+  buildOwl,
+  bundleApp,
+  fetchStyles,
+  fetchTemplates,
+} from "./assets";
 
 export class Server {
   handlers = {
@@ -27,11 +33,32 @@ export class Server {
     );
     if (app_config.other_static_files) {
       for (let file in app_config.other_static_files) {
-        const path = app_config.other_static_files[file]
-        this.get('/' + file, () => new Response(Bun.file(join(__dirname, '../', path))));
+        const path = app_config.other_static_files[file];
+        this.get(
+          "/" + file,
+          () => new Response(Bun.file(join(__dirname, "../", path)))
+        );
       }
     }
     if (this.dev) {
+      if (!app_config.inline_css) {
+        this.get(
+          "/app.css",
+          async () =>
+            new Response(await fetchStyles(), {
+              headers: { "Content-Type": "text/css" },
+            })
+        );
+      }
+      if (!app_config.inline_xml) {
+        this.get(
+          "/app.xml",
+          async () =>
+            new Response(await fetchTemplates(), {
+              headers: { "Content-Type": "application/xml" },
+            })
+        );
+      }
       this.config.websocket = autoReloadWebSocket;
       this.get("/autoreload", handleAutoReload)
         .get("/index.html", async () => {

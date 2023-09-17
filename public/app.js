@@ -2,7 +2,8 @@
 import { mount } from "@odoo/owl";
 import { Root } from "./root";
 
+const templates = await FETCH_TEMPLATES();
 mount(Root, document.body, {
-  templates: TEMPLATES, // injected by server
+  templates,
   dev: DEV, // injected by server
 });
