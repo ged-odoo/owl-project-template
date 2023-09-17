@@ -25,6 +25,9 @@ export function watchFiles(path) {
   watcher.on("ready", () => {
     watcher.on("all", (event, path) => {
       console.log(`Detected ${event} in ${path}`);
+      if (event === "addDir") {
+        return;
+      }
       const msg =
         path.endsWith(".css") && !app_config.inline_css
           ? "reload_css"
